@@ -1,0 +1,9 @@
+topic: ~topic004()
+# Defining extra concepts out of words or group of words
+#concept:(hello) [hello hi hey "good morning" greetings]
+
+# Replying to speech
+#u:(~hello) ~hello
+
+u:(hello) how are you?
+u:(^empty) %sample4 hi! nice to meet you!!
