@@ -52,11 +52,13 @@ public class MainActivity extends AppCompatActivity{
 ```
 
 ### 発話
+発話させる方法です。
 ```
         QLPepper.getInstance().buildSay("こんにちは").run();
 ```
 
 ### 聞き取り
+聞き取りの方法です。
 聞き取ったフレーズはコールバックにて受け取れます。
 ```
         List<String> list = Arrays.asList("おはよう", "グッドモーニング", "おは");
