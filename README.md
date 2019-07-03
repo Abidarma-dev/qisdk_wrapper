@@ -30,7 +30,7 @@ dependencies {
 ### Activityの登録
 Pepperに指示を出すためにはライブラリにActivityの登録・解除をする必要があります。
 登録・解除はonCreateとonDestoryで行ってください。
-また、Pepperに指示を出せるのはActivityがフォアグラウンドにいる間だけですの注意が必要です。
+また、Pepperに指示を出せるのはActivityがフォアグラウンドにいる間だけですので注意が必要です。
 
 ```
 public class MainActivity extends AppCompatActivity{
