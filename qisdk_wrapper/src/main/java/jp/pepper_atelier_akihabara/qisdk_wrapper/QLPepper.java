@@ -80,7 +80,7 @@ public class QLPepper {
     public synchronized void unregister(Activity activity){
         for(QLRobotLifecycleCallbacks current: qlRobotLifecycleCallbacksList){
             if(current.activity == activity){
-                QiSDK.unregister(current.activity, current.callbacks);
+                QiSDK.unregister(current.activity, current);
                 qlRobotLifecycleCallbacksList.remove(current);
             }
         }
