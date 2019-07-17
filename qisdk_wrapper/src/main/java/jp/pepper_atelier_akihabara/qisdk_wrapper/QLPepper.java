@@ -32,7 +32,7 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.manager.QLTouchManager;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLFrame;
 
 public class QLPepper {
-    public static final String TAG = "QiLight";
+    public static final String TAG = "QiSDK_Wrapper";
     private static volatile QLPepper instance;
     private Context context;
 
