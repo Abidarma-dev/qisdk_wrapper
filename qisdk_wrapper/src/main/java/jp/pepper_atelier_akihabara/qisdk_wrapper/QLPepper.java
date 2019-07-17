@@ -84,6 +84,7 @@ public class QLPepper {
                 qlRobotLifecycleCallbacksList.remove(current);
             }
         }
+        if(qlRobotLifecycleCallbacksList.size() == 0) qiContext = null;
     }
 
     /**
