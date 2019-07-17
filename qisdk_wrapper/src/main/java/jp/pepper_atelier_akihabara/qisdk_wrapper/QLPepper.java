@@ -382,6 +382,7 @@ public class QLPepper {
         @Override
         public void onRobotFocusLost() {
             Log.d(TAG, "onRobotFocusLost");
+            qiContext = null;
             if(callbacks != null) callbacks.onRobotFocusLost();
 
         }
