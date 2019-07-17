@@ -12,10 +12,12 @@ import java.util.List;
 
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLAction;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLPepper;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLLabelReachedListener;
 
 public class QLAnimate extends QLAction<Void> {
 
     protected List<Integer> animationIdList = new ArrayList<>();
+    protected QLLabelReachedListener qlLabelReachedListener = null;
 
     public QLAnimate(QLPepper qlPepper) {
         super(qlPepper);
@@ -41,6 +43,16 @@ public class QLAnimate extends QLAction<Void> {
      */
     public QLAnimate addResourceId(List<Integer> animationIdList){
         this.animationIdList.addAll(animationIdList);
+        return this;
+    }
+
+    /**
+     * Animation内のいずれかのLabelに到達した時に呼ばれるリスナー
+     * @param listener
+     * @return
+     */
+    public QLAnimate setLabelReachedListener(QLLabelReachedListener listener){
+        qlLabelReachedListener = listener;
         return this;
     }
 
@@ -89,6 +101,19 @@ public class QLAnimate extends QLAction<Void> {
                 }).andThenCompose(new Function<Animate, Future<Void>>() {
                     @Override
                     public Future<Void> execute(Animate animate) throws Throwable {
+                        if(qlLabelReachedListener != null){
+                            animate.addOnLabelReachedListener(new Animate.OnLabelReachedListener() {
+                                @Override
+                                public void onLabelReached(final String s, Long aLong) {
+                                    qlPepper.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            qlLabelReachedListener.onLabelReached(s);
+                                        }
+                                    });
+                                }
+                            });
+                        }
                         return animate.async().run();
                     }
                 });
