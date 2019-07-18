@@ -76,7 +76,7 @@ public abstract class QLAction <T> {
                 qlPepper.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        callback.onCancel();
+                        if(callback != null) callback.onCancel();
                     }
                 });
             }
