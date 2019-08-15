@@ -28,8 +28,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-	implementation 'com.aldebaran:qisdk:1.4.8'
-	implementation 'com.aldebaran:qisdk-design:1.4.8'
+	implementation 'com.aldebaran:qisdk:1.+'
+	implementation 'com.aldebaran:qisdk-design:1.+'
 }
 
 def repo = new File(rootDir, "repository")
@@ -40,7 +40,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository url: "file://${repo.absolutePath}"
-            pom.version = '1.0.5'             // version
+            pom.version = '1.0.6'             // version
             pom.groupId = 'jp.pepper-atelier-akihabara'    // グループ名
             pom.artifactId = 'qisdk_wrapper' // ライブラリ名
         }
