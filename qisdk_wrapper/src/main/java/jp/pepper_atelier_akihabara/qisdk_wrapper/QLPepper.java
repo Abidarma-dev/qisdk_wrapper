@@ -78,7 +78,8 @@ public class QLPepper {
      * @param activity
      */
     public synchronized void unregister(Activity activity){
-        for(QLRobotLifecycleCallbacks current: qlRobotLifecycleCallbacksList){
+        for(int index = qlRobotLifecycleCallbacksList.size(); 0 < index; index--){
+            QLRobotLifecycleCallbacks current = qlRobotLifecycleCallbacksList.get(index-1);
             if(current.activity == activity){
                 QiSDK.unregister(current.activity, current);
                 qlRobotLifecycleCallbacksList.remove(current);
