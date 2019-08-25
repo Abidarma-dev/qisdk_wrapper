@@ -46,8 +46,14 @@ public class QLHumanManager {
     private HumanAwareness.OnEngagedHumanChangedListener onEngagedHumanChangedListener = new HumanAwareness.OnEngagedHumanChangedListener() {
         @Override
         public void onEngagedHumanChanged(Human engagedHuman) {
-            final QLHuman qlHuman = new QLHuman(engagedHuman);
-            qlHuman.updateSync();
+            final QLHuman qlHuman;
+            if(engagedHuman == null) {
+                qlHuman = null;
+            }else{
+                qlHuman= new QLHuman(engagedHuman);
+                qlHuman.updateSync();
+            }
+
             QLPepper.getInstance().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -68,61 +74,46 @@ public class QLHumanManager {
     }
 
     public void setQiContext(QiContext qiContext){
-        if(qiContext == null) return;
-
-        this.qiContext = qiContext;
-        updateHumansAroundChangedListener();
-        updateEngagedHumanChangedListener();
+        if(qiContext == null && this.qiContext != null){
+            if(isReadyHumansAroundChanged.compareAndSet(true, false)){
+                this.qiContext.getHumanAwareness().async().removeOnHumansAroundChangedListener(onHumansAroundChangedListener);
+            }
+            if(isReadyEngagedHumanChanged.compareAndSet(true, false)){
+                this.qiContext.getHumanAwareness().async().removeOnEngagedHumanChangedListener(onEngagedHumanChangedListener);
+            }
+            this.qiContext = null;
+        }else{
+            this.qiContext = qiContext;
+            if(isReadyHumansAroundChanged.compareAndSet(false, true)){
+                qiContext.getHumanAwareness().async().addOnHumansAroundChangedListener(onHumansAroundChangedListener);
+            }
+            if(isReadyEngagedHumanChanged.compareAndSet(false, true)){
+                qiContext.getHumanAwareness().async().addOnEngagedHumanChangedListener(onEngagedHumanChangedListener);
+            }
+        }
     }
 
     public synchronized void addQLHumansAroundChangedListener(QLHumansAroundChangedListener listener) {
         qlHumansAroundChangedListenerList.add(listener);
-        updateHumansAroundChangedListener();
     }
 
     public synchronized void removeQLHumansAroundChangedListener(QLHumansAroundChangedListener listener) {
         qlHumansAroundChangedListenerList.remove(listener);
-        updateHumansAroundChangedListener();
     }
 
     public synchronized void removeAllQLHumansAroundChangedListener() {
         qlHumansAroundChangedListenerList.clear();
-        updateHumansAroundChangedListener();
     }
 
     public synchronized void addQLEngagedHumanChangedListener(QLEngagedHumanChangedListener listener) {
         qlEngagedHumanChangedListenerList.add(listener);
-        updateEngagedHumanChangedListener();
     }
 
     public synchronized void removeQLEngagedHumanChangedListener(QLEngagedHumanChangedListener listener) {
         qlEngagedHumanChangedListenerList.remove(listener);
-        updateEngagedHumanChangedListener();
     }
 
     public synchronized void removeAllQLEngagedHumanChangedListener() {
         qlEngagedHumanChangedListenerList.clear();
-        updateEngagedHumanChangedListener();
     }
-
-    private void updateHumansAroundChangedListener(){
-        if(qiContext == null) return;
-        if(!qlHumansAroundChangedListenerList.isEmpty() && isReadyHumansAroundChanged.compareAndSet(false, true)){
-            qiContext.getHumanAwareness().async().addOnHumansAroundChangedListener(onHumansAroundChangedListener);
-        }
-        if(qlHumansAroundChangedListenerList.isEmpty() && isReadyHumansAroundChanged.compareAndSet(true, false)){
-            qiContext.getHumanAwareness().async().removeOnHumansAroundChangedListener(onHumansAroundChangedListener);
-        }
-    }
-
-    private void updateEngagedHumanChangedListener(){
-        if(qiContext == null) return;
-        if(!qlEngagedHumanChangedListenerList.isEmpty() && isReadyEngagedHumanChanged.compareAndSet(false, true)){
-            qiContext.getHumanAwareness().async().addOnEngagedHumanChangedListener(onEngagedHumanChangedListener);
-        }
-        if(qlEngagedHumanChangedListenerList.isEmpty() && isReadyEngagedHumanChanged.compareAndSet(true, false)){
-            qiContext.getHumanAwareness().async().removeOnEngagedHumanChangedListener(onEngagedHumanChangedListener);
-        }
-    }
-
 }

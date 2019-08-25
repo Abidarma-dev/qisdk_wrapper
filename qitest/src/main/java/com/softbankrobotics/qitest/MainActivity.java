@@ -1,5 +1,6 @@
 package com.softbankrobotics.qitest;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLActionCallback;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLPepper;
@@ -21,6 +23,7 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLLookAt;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLSay;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLBookmarkReachedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLEngagedHumanChangedListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLTouchedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLFrame;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLHuman;
@@ -451,6 +454,34 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 QLPepper.getInstance().buildLocalize().setMapFileName("hogehgoe").run();
+            }
+        });
+
+        findViewById(R.id.btn_test_028).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                QLPepper.getInstance().addQLHumansAroundChangedListener(new QLHumansAroundChangedListener() {
+                    @Override
+                    public void onHumansAroundChanged(List<QLHuman> humanList) {
+                        Log.d("QLTest", "onHumansAroundChanged Test");
+                    }
+                });
+
+                QLPepper.getInstance().addOnTouchedListener(new QLTouchedListener() {
+                    @Override
+                    public void onTouched(QLSensor sensor) {
+                        Log.d("QLTest", "onTouched Test" + sensor);
+                    }
+                });
+                QLPepper.getInstance().addQLEngagedHumanChangedListener(new QLEngagedHumanChangedListener() {
+                    @Override
+                    public void onEngagedHumanChanged(QLHuman human) {
+                        Log.d("QLTest", "addQLEngagedHumanChangedListener Test");
+                    }
+                });
+
+                Intent intent = new Intent(MainActivity.this, Main2Activity.class);
+                startActivity(intent);
             }
         });
         QLPepper.getInstance().register(this);

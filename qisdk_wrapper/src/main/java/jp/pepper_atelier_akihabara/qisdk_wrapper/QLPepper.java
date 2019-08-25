@@ -385,8 +385,9 @@ public class QLPepper {
         public void onRobotFocusLost() {
             Log.d(TAG, "onRobotFocusLost");
             qiContext = null;
+            QLTouchManager.getInstance().setQiContext(null);
+            QLHumanManager.getInstance().setQiContext(null);
             if(callbacks != null) callbacks.onRobotFocusLost();
-
         }
 
         @Override

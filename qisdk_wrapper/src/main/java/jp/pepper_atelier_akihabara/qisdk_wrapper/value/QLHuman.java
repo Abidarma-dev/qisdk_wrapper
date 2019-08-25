@@ -27,13 +27,13 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.QLActionCallback;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLPepper;
 
 public class QLHuman {
-    private AttentionState attentionState;
-    private ExcitementState excitementState;
-    private PleasureState pleasureState;
-    private int age;
-    private Gender gender;
-    private EngagementIntentionState engagementIntention;
-    private SmileState smileState;
+    private AttentionState attentionState = AttentionState.UNKNOWN;
+    private ExcitementState excitementState = ExcitementState.UNKNOWN;
+    private PleasureState pleasureState = PleasureState.UNKNOWN;
+    private int age = 0;
+    private Gender gender = Gender.UNKNOWN;
+    private EngagementIntentionState engagementIntention = EngagementIntentionState.UNKNOWN;
+    private SmileState smileState = SmileState.UNKNOWN;
 
     private volatile Bitmap facePictureBitmap = null;
 
@@ -44,6 +44,7 @@ public class QLHuman {
     }
 
     public void updateSync(){
+        if(human == null) return;
         attentionState = human.getAttention();
         excitementState = human.getEmotion().getExcitement();
         pleasureState = human.getEmotion().getPleasure();
@@ -62,7 +63,9 @@ public class QLHuman {
      * @param callback
      */
     public void update(final QLActionCallback<QLHuman> callback){
-
+        if(human == null){
+            return;
+        }
         Future.waitAll(
             human.async().getAttention().thenConsume(new Consumer<Future<AttentionState>>() {
                 @Override
