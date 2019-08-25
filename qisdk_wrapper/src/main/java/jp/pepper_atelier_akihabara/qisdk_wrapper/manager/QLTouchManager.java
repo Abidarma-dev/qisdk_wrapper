@@ -103,25 +103,24 @@ public class QLTouchManager {
         public void setOnStateChangedListener(){
             if(qiContext == null || !isPreparedSensor.compareAndSet(false, true)) return;
 
-            if(touchSensor == null){
-                qiContext.getTouch().async().getSensor(name)
-                        .andThenConsume(new Consumer<TouchSensor>() {
-                            @Override
-                            public void consume(TouchSensor touchSensor) throws Throwable {
-                                QLSensor.this.touchSensor =touchSensor;
-                                if(isPreparedSensor.compareAndSet(true, false)){
-                                    touchSensor.addOnStateChangedListener(onStateChangedListener);
-                                }
+            qiContext.getTouch().async().getSensor(name)
+                    .andThenConsume(new Consumer<TouchSensor>() {
+                        @Override
+                        public void consume(TouchSensor touchSensor) throws Throwable {
+                            QLSensor.this.touchSensor =touchSensor;
+                            if(isPreparedSensor.compareAndSet(true, false)){
+                                touchSensor.addOnStateChangedListener(onStateChangedListener);
                             }
-                        });
-            }else{
-                touchSensor.async().addOnStateChangedListener(onStateChangedListener);
-            }
+                        }
+                    });
         }
 
         public void removeOnStateChangedListener(){
             isPreparedSensor.set(false);
-            if(touchSensor != null) touchSensor.async().removeOnStateChangedListener(onStateChangedListener);
+            if(touchSensor != null) {
+                touchSensor.async().removeOnStateChangedListener(onStateChangedListener);
+                touchSensor = null;
+            }
         }
     }
 }

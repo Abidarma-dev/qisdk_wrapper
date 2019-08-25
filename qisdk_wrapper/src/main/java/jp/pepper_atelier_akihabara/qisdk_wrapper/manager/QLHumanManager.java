@@ -46,8 +46,14 @@ public class QLHumanManager {
     private HumanAwareness.OnEngagedHumanChangedListener onEngagedHumanChangedListener = new HumanAwareness.OnEngagedHumanChangedListener() {
         @Override
         public void onEngagedHumanChanged(Human engagedHuman) {
-            final QLHuman qlHuman = new QLHuman(engagedHuman);
-            qlHuman.updateSync();
+            final QLHuman qlHuman;
+            if(engagedHuman == null) {
+                qlHuman = null;
+            }else{
+                qlHuman= new QLHuman(engagedHuman);
+                qlHuman.updateSync();
+            }
+
             QLPepper.getInstance().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -70,10 +76,10 @@ public class QLHumanManager {
     public void setQiContext(QiContext qiContext){
         if(qiContext == null && this.qiContext != null){
             if(isReadyHumansAroundChanged.compareAndSet(true, false)){
-                qiContext.getHumanAwareness().async().removeOnHumansAroundChangedListener(onHumansAroundChangedListener);
+                this.qiContext.getHumanAwareness().async().removeOnHumansAroundChangedListener(onHumansAroundChangedListener);
             }
             if(isReadyEngagedHumanChanged.compareAndSet(true, false)){
-                qiContext.getHumanAwareness().async().removeOnEngagedHumanChangedListener(onEngagedHumanChangedListener);
+                this.qiContext.getHumanAwareness().async().removeOnEngagedHumanChangedListener(onEngagedHumanChangedListener);
             }
             this.qiContext = null;
         }else{
