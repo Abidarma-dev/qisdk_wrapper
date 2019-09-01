@@ -80,6 +80,7 @@ public class QLPepper {
      * @param callbacks
      */
     public synchronized void register(Activity activity, final RobotLifecycleCallbacks callbacks){
+        unregister(activity);
         QLRobotLifecycleCallbacks qlRobotLifecycleCallbacks = new QLRobotLifecycleCallbacks(activity, callbacks);
         QiSDK.register(activity, qlRobotLifecycleCallbacks);
         qlRobotLifecycleCallbacksList.add(qlRobotLifecycleCallbacks);
@@ -92,11 +93,19 @@ public class QLPepper {
      * @param activity
      */
     public synchronized void unregister(Activity activity){
-        for(int index = qlRobotLifecycleCallbacksList.size(); 0 < index; index--){
-            QLRobotLifecycleCallbacks current = qlRobotLifecycleCallbacksList.get(index-1);
-            if(activity == null || current.activity == activity){
-                QiSDK.unregister(current.activity, current);
+        if(activity == null ){
+            for(int index = qlRobotLifecycleCallbacksList.size(); 0 < index; index--){
+                QLRobotLifecycleCallbacks current = qlRobotLifecycleCallbacksList.get(index-1);
+                QiSDK.unregister(current.activity);
                 qlRobotLifecycleCallbacksList.remove(current);
+            }
+        }else{
+            QiSDK.unregister(activity);
+            for(int index = qlRobotLifecycleCallbacksList.size(); 0 < index; index--){
+                QLRobotLifecycleCallbacks current = qlRobotLifecycleCallbacksList.get(index-1);
+                if(current.activity == activity){
+                    qlRobotLifecycleCallbacksList.remove(current);
+                }
             }
         }
         if(qlRobotLifecycleCallbacksList.size() == 0) qiContext = null;
