@@ -60,7 +60,7 @@ public class QLTouchManager {
                 }
             }
             this.qiContext = null;
-        }else{
+        }else if(qiContext != null){
             this.qiContext = qiContext;
             if(isReady.compareAndSet(false, true)){
                 for(QLSensor current: qlSensorList){

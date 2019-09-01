@@ -90,7 +90,7 @@ public class QLHumanManager {
                 this.qiContext.getHumanAwareness().async().removeOnEngagedHumanChangedListener(onEngagedHumanChangedListener);
             }
             this.qiContext = null;
-        }else{
+        }else if(qiContext != null){
             this.qiContext = qiContext;
             if(isReadyHumansAroundChanged.compareAndSet(false, true)){
                 qiContext.getHumanAwareness().async().addOnHumansAroundChangedListener(onHumansAroundChangedListener);
