@@ -39,6 +39,13 @@ public class QLTouchManager {
         return instance;
     }
 
+    public static void release(){
+        if(instance == null) return;
+        instance.removeAllOnTouchedListener();
+        instance.setQiContext(null);
+        instance = null;
+    }
+
     public QLTouchManager(){
         for(QLTouchedListener.QLSensor current: sensorStringMap.keySet()){
             qlSensorList.add(new QLSensor(current));

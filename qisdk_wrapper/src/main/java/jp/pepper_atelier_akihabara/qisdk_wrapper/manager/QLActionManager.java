@@ -21,6 +21,12 @@ public class QLActionManager {
         return instance;
     }
 
+    public static void release(){
+        if(instance == null) return;
+        instance.cancelAction();
+        instance = null;
+    }
+
     private volatile Map<QLAction.ActionType, QLAction> actionMap = new HashMap<>();
     private volatile Queue<QLAction> actionSetQueue = new ArrayDeque<>();
 

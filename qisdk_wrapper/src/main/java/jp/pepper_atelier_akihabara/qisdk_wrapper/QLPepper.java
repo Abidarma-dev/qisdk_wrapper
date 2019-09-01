@@ -30,10 +30,14 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.manager.QLActionManager;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.manager.QLHumanManager;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.manager.QLTouchManager;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLFrame;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLHuman;
 
 public class QLPepper {
     public static final String TAG = "QiSDK_Wrapper";
+
     private static volatile QLPepper instance;
+    private static volatile QiContext qiContext = null;
+
     private Context context;
 
     public static QLPepper getInstance() {
@@ -41,7 +45,17 @@ public class QLPepper {
         return instance;
     }
 
-    private volatile QiContext qiContext = null;
+    public static void release(){
+        if(instance == null) return;
+
+        QLActionManager.release();
+        QLHumanManager.release();
+        QLTouchManager.release();
+
+        instance.unregister(null);
+        instance = null;
+    }
+
     private volatile List<QLRobotLifecycleCallbacks> qlRobotLifecycleCallbacksList= new ArrayList<>();
     private Handler handler;
 
@@ -80,7 +94,7 @@ public class QLPepper {
     public synchronized void unregister(Activity activity){
         for(int index = qlRobotLifecycleCallbacksList.size(); 0 < index; index--){
             QLRobotLifecycleCallbacks current = qlRobotLifecycleCallbacksList.get(index-1);
-            if(current.activity == activity){
+            if(activity == null || current.activity == activity){
                 QiSDK.unregister(current.activity, current);
                 qlRobotLifecycleCallbacksList.remove(current);
             }
@@ -362,7 +376,7 @@ public class QLPepper {
         return context.getResources().getString(resId);
     }
 
-    private class QLRobotLifecycleCallbacks implements RobotLifecycleCallbacks{
+    private static class QLRobotLifecycleCallbacks implements RobotLifecycleCallbacks{
         private final Activity activity;
         private final RobotLifecycleCallbacks callbacks;
 

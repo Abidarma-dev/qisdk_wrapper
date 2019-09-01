@@ -70,6 +70,14 @@ public class QLHumanManager {
         return instance;
     }
 
+    public static void release(){
+        if(instance == null) return;
+        instance.removeAllQLEngagedHumanChangedListener();
+        instance.removeAllQLHumansAroundChangedListener();
+        instance.setQiContext(null);
+        instance = null;
+    }
+
     public QLHumanManager(){
     }
 
