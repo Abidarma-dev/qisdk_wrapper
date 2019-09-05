@@ -80,7 +80,6 @@ public class QLPepper {
      * @param callbacks
      */
     public synchronized void register(Activity activity, final RobotLifecycleCallbacks callbacks){
-        unregister(activity);
         QLRobotLifecycleCallbacks qlRobotLifecycleCallbacks = new QLRobotLifecycleCallbacks(activity, callbacks);
         QiSDK.register(activity, qlRobotLifecycleCallbacks);
         qlRobotLifecycleCallbacksList.add(qlRobotLifecycleCallbacks);
