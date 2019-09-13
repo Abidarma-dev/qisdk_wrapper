@@ -236,6 +236,7 @@ public abstract class QLAction <T> {
                         }
                     }
                 }else if(voidFuture.hasError()){
+                    future.requestCancellation();
                     actionState.set(ACTION_STATE_DONE);
                     if(callback != null) callback.onError(voidFuture.getErrorMessage());
                 }
