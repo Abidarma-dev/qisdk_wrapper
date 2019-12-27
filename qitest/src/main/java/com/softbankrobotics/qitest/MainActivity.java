@@ -1,6 +1,7 @@
 package com.softbankrobotics.qitest;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -484,6 +489,35 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        findViewById(R.id.btn_test_029).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Resources res = getResources();
+
+                InputStream is = null;
+                BufferedReader br = null;
+                StringBuilder sb = new StringBuilder();
+                try{
+                    try {
+                        is = res.openRawResource(R.raw.dog_a001);
+                        br = new BufferedReader(new InputStreamReader(is));
+                        String str;
+                        while((str = br.readLine()) != null){
+                            sb.append(str +"\n");
+                        }
+                    } finally {
+                        if (br !=null) br.close();
+                    }
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "読み込み失敗", Toast.LENGTH_SHORT).show();
+                }
+
+                QLPepper.getInstance().buildSay().addPhrase("aa", sb.toString()).run();
+            }
+        });
+
+
         QLPepper.getInstance().register(this);
     }
 
@@ -492,4 +526,5 @@ public class MainActivity extends AppCompatActivity {
         QLPepper.getInstance().unregister(this);
         super.onDestroy();
     }
+
 }

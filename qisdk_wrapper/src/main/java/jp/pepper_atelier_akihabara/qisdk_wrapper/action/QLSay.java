@@ -21,6 +21,7 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLLanguage;
 
 public class QLSay extends QLAction<Void> {
     private static final int NO_ANIMATION = -1;
+    private static final int XML_ANIMATION = -2;
 
     private QLLanguage.Language language = null;
     private Boolean bodyLanguage = true;
@@ -76,6 +77,21 @@ public class QLSay extends QLAction<Void> {
      */
     public QLSay addPhrase(String phrase){
         addPhrase(phrase, NO_ANIMATION);
+        return this;
+    }
+
+    /**
+     * 発話とモーションの内容を設定
+     * 複数登録された場合は順次実行
+     * @param phrase
+     * @param animationXml アニメーションを定義したXML
+     * @return
+     */
+    public QLSay addPhrase(String phrase, String animationXml){
+        if(phrase == null) phrase = "";
+        if(animationXml != null && !animationXml.isEmpty()){
+            phraseQueue.add(new QLPhrase(phrase, animationXml));
+        }
         return this;
     }
 
@@ -188,10 +204,14 @@ public class QLSay extends QLAction<Void> {
             final QLPhrase current = phraseQueue.poll();
             if(current == null) break;
 
-            if(!current.phrase.isEmpty() && current.animationId != NO_ANIMATION){
+            if(!current.phrase.isEmpty() && current.animationId != NO_ANIMATION && current.animationId != XML_ANIMATION){
                 futureVoid = runSayWithAnimate(current.phrase, current.animationId, futureVoid);
+            }else if(!current.phrase.isEmpty() && current.animationXml != null && current.animationId == XML_ANIMATION){
+                futureVoid = runSayWithAnimate(current.phrase, current.animationXml, futureVoid);
             }else if(!current.phrase.isEmpty()){
                 futureVoid = runSay(current.phrase, false, futureVoid);
+            }else if(current.animationXml != null && current.animationId == XML_ANIMATION) {
+                futureVoid = runAnimate(current.animationXml, futureVoid);
             }else if(current.animationId != NO_ANIMATION){
                 futureVoid = runAnimate(current.animationId, futureVoid);
             }
@@ -268,20 +288,62 @@ public class QLSay extends QLAction<Void> {
                 // nop Animateのエラーではアクションの連鎖を止めない
             }
         });
+    }
 
+    private Future<Void> runAnimate(final String animationXml, Future<Void> futureVoid){
+        Future<Animation> futureAnimation;
+        if(futureVoid == null){
+            futureAnimation = AnimationBuilder.with(qiContext).withTexts(animationXml).buildAsync();
+
+        }else{
+            futureAnimation = futureVoid.andThenCompose(new Function<Void, Future<Animation>>() {
+                @Override
+                public Future<Animation> execute(Void aVoid) throws Throwable {
+                    return AnimationBuilder.with(qiContext).withTexts(animationXml).buildAsync();
+                }
+            });
+        }
+
+        return futureAnimation.andThenCompose(new Function<Animation, Future<Animate>>() {
+            @Override
+            public Future<Animate> execute(Animation animation) throws Throwable {
+                return AnimateBuilder.with(qiContext).withAnimation(animation).buildAsync();
+            }
+        }).andThenCompose(new Function<Animate, Future<Void>>() {
+            @Override
+            public Future<Void> execute(Animate animate) throws Throwable {
+                return animate.async().run();
+            }
+        }).thenConsume(new Consumer<Future<Void>>() {
+            @Override
+            public void consume(Future<Void> voidFuture) throws Throwable {
+                // nop Animateのエラーではアクションの連鎖を止めない
+            }
+        });
     }
 
     private Future<Void> runSayWithAnimate(String phrase, int animationId, Future<Void> futureVoid){
         return Future.waitAll(runSay(phrase, true, futureVoid), runAnimate(animationId, futureVoid));
     }
 
+    private Future<Void> runSayWithAnimate(String phrase, String animationXml, Future<Void> futureVoid){
+        return Future.waitAll(runSay(phrase, true, futureVoid), runAnimate(animationXml, futureVoid));
+    }
+
     class QLPhrase {
         public String phrase;
         public int animationId;
+        public String animationXml;
 
         public QLPhrase(String phrase, int animationId){
             this.phrase = phrase;
             this.animationId = animationId;
+        }
+
+        public QLPhrase(String phrase, String animationXml){
+            this.phrase = phrase;
+            this.animationXml = animationXml;
+            this.animationId = XML_ANIMATION;
         }
     }
 }
