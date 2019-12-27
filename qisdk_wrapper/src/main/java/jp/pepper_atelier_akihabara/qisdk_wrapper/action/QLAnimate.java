@@ -15,8 +15,10 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.QLPepper;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLLabelReachedListener;
 
 public class QLAnimate extends QLAction<Void> {
+    public static final int NO_ANIMATION = -1;
+    public static final int XML_ANIMATION = -2;
 
-    protected List<Integer> animationIdList = new ArrayList<>();
+    protected List<QLAnimation> animationIdList = new ArrayList<>();
     protected QLLabelReachedListener qlLabelReachedListener = null;
 
     public QLAnimate(QLPepper qlPepper) {
@@ -31,7 +33,18 @@ public class QLAnimate extends QLAction<Void> {
      * @return
      */
     public QLAnimate addResourceId(Integer animationId){
-        animationIdList.add(animationId);
+        animationIdList.add(new QLAnimation(animationId));
+        return this;
+    }
+
+    /**
+     * 実行するアニメーションのXMLの登録
+     * 複数登録された場合は順次実行
+     * @param animationXml
+     * @return
+     */
+    public QLAnimate addAnimationXml(String animationXml){
+        animationIdList.add(new QLAnimation(animationXml));
         return this;
     }
 
@@ -42,7 +55,9 @@ public class QLAnimate extends QLAction<Void> {
      * @return
      */
     public QLAnimate addResourceId(List<Integer> animationIdList){
-        this.animationIdList.addAll(animationIdList);
+        for(int i=0; i<animationIdList.size(); i++){
+            addResourceId(animationIdList.get(i));
+        }
         return this;
     }
 
@@ -60,8 +75,8 @@ public class QLAnimate extends QLAction<Void> {
     protected Future<Void> execute(){
         Future<Void> futureVoid = null;
         for(int i=0; i<animationIdList.size(); i++){
-            final int animationId = animationIdList.get(i);
-            futureVoid = runAnimate(animationId, futureVoid);
+            final QLAnimation animation = animationIdList.get(i);
+            futureVoid = runAnimate(animation, futureVoid);
         }
         return futureVoid;
     }
@@ -71,8 +86,10 @@ public class QLAnimate extends QLAction<Void> {
         if(animationIdList.isEmpty()){
             return false;
         }else{
-            for(int current: animationIdList){
-                if(current <= 0){
+            for(QLAnimation current: animationIdList){
+                if((current.animationId <= 0 && current.animationId != XML_ANIMATION) ||
+                        (current.animationId == XML_ANIMATION && (current.animationXml == null || current.animationXml.isEmpty())))
+                {
                     return false;
                 }
             }
@@ -80,17 +97,30 @@ public class QLAnimate extends QLAction<Void> {
         return true;
     }
 
-    protected Future<Void> runAnimate(final int animationId, Future<Void> futureVoid){
+    protected Future<Void> runAnimate(final QLAnimation animation, Future<Void> futureVoid){
         Future<Animation> futureAnimation;
         if(futureVoid == null){
-            futureAnimation = AnimationBuilder.with(qiContext).withResources(animationId).buildAsync();
+            if(animation.animationId == XML_ANIMATION){
+                futureAnimation = AnimationBuilder.with(qiContext).withTexts(animation.animationXml).buildAsync();
+            }else{
+                futureAnimation = AnimationBuilder.with(qiContext).withResources(animation.animationId).buildAsync();
+            }
         }else{
-            futureAnimation = futureVoid.andThenCompose(new Function<Void, Future<Animation>>() {
-                @Override
-                public Future<Animation> execute(Void aVoid) throws Throwable {
-                    return AnimationBuilder.with(qiContext).withResources(animationId).buildAsync();
-                }
-            });
+            if(animation.animationId == XML_ANIMATION) {
+                futureAnimation = futureVoid.andThenCompose(new Function<Void, Future<Animation>>() {
+                    @Override
+                    public Future<Animation> execute(Void aVoid) throws Throwable {
+                        return AnimationBuilder.with(qiContext).withTexts(animation.animationXml).buildAsync();
+                    }
+                });
+            }else{
+                futureAnimation = futureVoid.andThenCompose(new Function<Void, Future<Animation>>() {
+                    @Override
+                    public Future<Animation> execute(Void aVoid) throws Throwable {
+                        return AnimationBuilder.with(qiContext).withResources(animation.animationId).buildAsync();
+                    }
+                });
+            }
         }
 
         return futureAnimation.andThenCompose(new Function<Animation, Future<Animate>>() {
@@ -117,5 +147,19 @@ public class QLAnimate extends QLAction<Void> {
                         return animate.async().run();
                     }
                 });
+    }
+
+    class QLAnimation {
+        public int animationId;
+        public String animationXml;
+
+        public QLAnimation(int animationId){
+            this.animationId = animationId;
+        }
+
+        public QLAnimation(String animationXml){
+            this.animationXml = animationXml;
+            this.animationId = XML_ANIMATION;
+        }
     }
 }

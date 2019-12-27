@@ -517,6 +517,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.btn_test_030).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Resources res = getResources();
+
+                InputStream is = null;
+                BufferedReader br = null;
+                StringBuilder sb = new StringBuilder();
+                try{
+                    try {
+                        is = res.openRawResource(R.raw.dog_a001);
+                        br = new BufferedReader(new InputStreamReader(is));
+                        String str;
+                        while((str = br.readLine()) != null){
+                            sb.append(str +"\n");
+                        }
+                    } finally {
+                        if (br !=null) br.close();
+                    }
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "読み込み失敗", Toast.LENGTH_SHORT).show();
+                }
+
+                QLPepper.getInstance().buildAnimate().addAnimationXml(sb.toString()).run();
+            }
+        });
 
         QLPepper.getInstance().register(this);
     }

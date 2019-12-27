@@ -19,10 +19,10 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.QLAction;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLPepper;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLLanguage;
 
-public class QLSay extends QLAction<Void> {
-    private static final int NO_ANIMATION = -1;
-    private static final int XML_ANIMATION = -2;
+import static jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLAnimate.NO_ANIMATION;
+import static jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLAnimate.XML_ANIMATION;
 
+public class QLSay extends QLAction<Void> {
     private QLLanguage.Language language = null;
     private Boolean bodyLanguage = true;
     private Queue<QLPhrase> phraseQueue = new ArrayDeque<>();
