@@ -8,22 +8,22 @@ import com.aldebaran.qi.sdk.builder.QiChatbotBuilder;
 import com.aldebaran.qi.sdk.builder.TopicBuilder;
 import com.aldebaran.qi.sdk.object.conversation.AutonomousReactionImportance;
 import com.aldebaran.qi.sdk.object.conversation.AutonomousReactionValidity;
+import com.aldebaran.qi.sdk.object.conversation.BaseChatbot;
 import com.aldebaran.qi.sdk.object.conversation.BodyLanguageOption;
 import com.aldebaran.qi.sdk.object.conversation.Bookmark;
 import com.aldebaran.qi.sdk.object.conversation.Chat;
 import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLAction;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLPepper;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.QLChatbotBuilder;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLBookmarkReachedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatStartedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLLanguage;
@@ -38,7 +38,9 @@ public class QLChat extends QLAction<String> {
     private QLLanguage.Language language;
     private Boolean bodyLanguage = true;
     private QiChatbot qiChatbot;
-    private Future<Void> futureQiChatbot = null;
+
+    private volatile ArrayList<QLChatbotBuilder> chatbotBuilders = new ArrayList<>();
+    private volatile ArrayList<BaseChatbot> chatbotList = new ArrayList<>();
 
     public QLChat(QLPepper qlPepper) {
         super(qlPepper);
@@ -91,6 +93,16 @@ public class QLChat extends QLAction<String> {
     }
 
     /**
+     * チャットに使用するカスタムチャットボットを生成するためのビルダーを登録する
+     * @param chatbot
+     * @return
+     */
+    public QLChat addChatbotBuilder(QLChatbotBuilder chatbot){
+        chatbotBuilders.add(chatbot);
+        return this;
+    }
+
+    /**
      * トピックファイル内のいずれかのBookmarkに到達した時に呼ばれるリスナー
      * @param listener
      * @return
@@ -113,22 +125,25 @@ public class QLChat extends QLAction<String> {
     @Override
     protected Future<Void> execute() {
         Future<Void> futureVoid = null;
-        for(final int topicId: topicIdList){
-            futureVoid = buildTopic(topicId, futureVoid);
-        }
 
-        if(futureVoid != null){
-            futureVoid = runChat(futureVoid);
+        buildQLChatbot();
+
+        if(topicIdList.size() > 0){
+            for(final int topicId: topicIdList){
+                futureVoid = buildTopic(topicId, futureVoid);
+            }
+            futureVoid = buildQiChatbot(futureVoid);
         }
+        futureVoid = runChat(futureVoid);
 
         return futureVoid;
     }
 
     @Override
     protected Boolean validate() {
-        if(topicIdList.isEmpty()){
-            return false;
-        }else{
+        if(topicIdList.isEmpty() && chatbotBuilders.size() == 0) return false;
+
+        if(!topicIdList.isEmpty()){
             // 重複削除
             topicIdList = new ArrayList<>(new LinkedHashSet<>(topicIdList));
             for(int current: topicIdList){
@@ -136,8 +151,17 @@ public class QLChat extends QLAction<String> {
                     return false;
                 }
             }
+
         }
         return true;
+    }
+
+    private void buildQLChatbot(){
+        if(chatbotBuilders.size() > 0){
+            for(QLChatbotBuilder builder: chatbotBuilders){
+                chatbotList.add(builder.build(qiContext));
+            }
+        }
     }
 
     private Future<Void> buildTopic(final int topicId, Future<Void> futureVoid){
@@ -161,25 +185,24 @@ public class QLChat extends QLAction<String> {
         });
     }
 
-    private Future<Void> runChat(Future<Void> futureVoid){
-        if(futureVoid == null) return null;
-
+    private Future<Void> buildQiChatbot(Future<Void> futureVoid){
         return futureVoid.andThenCompose(new Function<Void, Future<QiChatbot>>() {
             @Override
-            public Future<QiChatbot> execute(Void aVoid) throws Throwable {
+            public Future<QiChatbot> execute(Void aVoid) {
                 QiChatbotBuilder qiChatbotBuilder = QiChatbotBuilder.with(qiContext).withTopics(topicList);
                 if(language!= null){
                     qiChatbotBuilder.withLocale(QLLanguage.makeLocale(language));
                 }
                 return qiChatbotBuilder.buildAsync();
             }
-        }).andThenCompose(new Function<QiChatbot, Future<Chat>>() {
+        }).andThenConsume(new Consumer<QiChatbot>() {
             @Override
-            public Future<Chat> execute(QiChatbot qiChatbot) throws Throwable {
+            public void consume(QiChatbot qiChatbot) {
                 QLChat.this.qiChatbot = qiChatbot;
                 if(!bodyLanguage){
                     qiChatbot.setSpeakingBodyLanguage(BodyLanguageOption.DISABLED);
                 }
+
                 if (qlBookmarkReachedListener != null) {
                     qiChatbot.addOnBookmarkReachedListener(new QiChatbot.OnBookmarkReachedListener() {
                         @Override
@@ -200,17 +223,38 @@ public class QLChat extends QLAction<String> {
                     public void onEnded(String endReason) {
                         isSuccess = true;
                         actionResult = endReason;
-                        if (futureQiChatbot != null) futureQiChatbot.requestCancellation();
+                        if (future != null) future.requestCancellation();
                     }
                 });
 
-                ChatBuilder builder = ChatBuilder.with(qiContext).withChatbot(qiChatbot);
-                if(language!= null){
-                    builder.withLocale(QLLanguage.makeLocale(language));
-                }
-                return builder.buildAsync();
+                chatbotList.add((BaseChatbot)qiChatbot);
             }
-        }).andThenCompose(new Function<Chat, Future<Void>>() {
+        });
+    }
+
+    private Future<Void> runChat(Future<Void> futureVoid){
+        Future<Chat> futureChat;
+        if(futureVoid == null){
+            // カスタムチャットボットのみの場合はfutureVoidがnullになる
+            ChatBuilder builder  = ChatBuilder.with(qiContext).withChatbots(chatbotList);
+            if(language!= null){
+                builder.withLocale(QLLanguage.makeLocale(language));
+            }
+            futureChat = builder.buildAsync();
+        }else{
+            futureChat = futureVoid.andThenCompose(new Function<Void, Future<Chat>>() {
+                @Override
+                public Future<Chat> execute(Void aVoid) {
+                    ChatBuilder builder  = ChatBuilder.with(qiContext).withChatbots(chatbotList);
+                    if(language!= null){
+                        builder.withLocale(QLLanguage.makeLocale(language));
+                    }
+                    return builder.buildAsync();
+                }
+            });
+        }
+
+        return futureChat.andThenCompose(new Function<Chat, Future<Void>>() {
             @Override
             public Future<Void> execute(final Chat chat) throws Throwable {
                 if(!bodyLanguage){

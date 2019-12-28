@@ -26,6 +26,9 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLListen;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLLocalize;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLLookAt;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLSay;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.dialogflow.OnDetectedIntentListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.dialogflow.QLDialogflowChatbot;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.dialogflow.QLDialogflowChatbotBuilder;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLBookmarkReachedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLEngagedHumanChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundChangedListener;
@@ -56,12 +59,17 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_test_001).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
+                QLDialogflowChatbotBuilder qlDialogflowChatbotBuilder = new QLDialogflowChatbotBuilder(getApplicationContext(), R.raw.credentials, "test-session-id");
+
+                qlDialogflowChatbotBuilder.setOnDetectedIntentListener(new OnDetectedIntentListener() {
                     @Override
-                    public void run() {
-                        QLPepper.getInstance().buildAnimate().addResourceId(R.raw.anim001).runSync();
+                    public void onDetected(Bundle payload) {
+                        for(String key: payload.keySet()){
+                            Toast.makeText(MainActivity.this, payload.getString(key), Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }).start();
+                });
+                QLPepper.getInstance().buildChat().addChatbotBuilder(qlDialogflowChatbotBuilder).run();
             }
         });
         findViewById(R.id.btn_test_002).setOnClickListener(new View.OnClickListener() {
