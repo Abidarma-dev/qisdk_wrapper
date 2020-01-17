@@ -12,6 +12,7 @@ import com.aldebaran.qi.sdk.object.conversation.BaseChatbot;
 import com.aldebaran.qi.sdk.object.conversation.BodyLanguageOption;
 import com.aldebaran.qi.sdk.object.conversation.Bookmark;
 import com.aldebaran.qi.sdk.object.conversation.Chat;
+import com.aldebaran.qi.sdk.object.conversation.Phrase;
 import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
@@ -227,7 +228,7 @@ public class QLChat extends QLAction<String> {
                     }
                 });
 
-                chatbotList.add((BaseChatbot)qiChatbot);
+                chatbotList.add(0, (BaseChatbot)qiChatbot);
             }
         });
     }
@@ -260,7 +261,6 @@ public class QLChat extends QLAction<String> {
                 if(!bodyLanguage){
                     chat.setListeningBodyLanguage(BodyLanguageOption.DISABLED);
                 }
-
                 if (qlChatStartedListener != null){
                     chat.addOnStartedListener(new Chat.OnStartedListener() {
                         @Override
