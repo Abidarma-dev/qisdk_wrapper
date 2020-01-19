@@ -26,6 +26,9 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.QLAction;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLPepper;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.QLChatbotBuilder;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLBookmarkReachedListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatHeardListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatHearingChangedListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatSayingChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatStartedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLLanguage;
 
@@ -36,6 +39,9 @@ public class QLChat extends QLAction<String> {
     private List<Topic> topicList = new ArrayList<>();
     private QLBookmarkReachedListener qlBookmarkReachedListener;
     private QLChatStartedListener qlChatStartedListener;
+    private QLChatSayingChangedListener qlChatSayingChangedListener;
+    private QLChatHeardListener qlChatHeardListener;
+    private QLChatHearingChangedListener qlChatHearingChangedListener;
     private QLLanguage.Language language;
     private Boolean bodyLanguage = true;
     private QiChatbot qiChatbot;
@@ -114,12 +120,42 @@ public class QLChat extends QLAction<String> {
     }
 
     /**
-     * チャット外資された時に呼ばれるリスナーの設定
+     * チャットが開始された時に呼ばれるリスナーの設定
      * @param listener
      * @return
      */
     public QLChat setQlChatStartedListener(QLChatStartedListener listener){
         qlChatStartedListener = listener;
+        return this;
+    }
+
+    /**
+     * チャットが聞き取りを行った時に呼ばれるリスナーの設定
+     * @param listener
+     * @return
+     */
+    public QLChat setQlChatHeardListener(QLChatHeardListener listener){
+        qlChatHeardListener = listener;
+        return this;
+    }
+
+    /**
+     * チャットが発話を行った時に呼ばれるリスナーの設定
+     * @param listener
+     * @return
+     */
+    public QLChat setQlChatSayingChangedListener(QLChatSayingChangedListener listener){
+        qlChatSayingChangedListener = listener;
+        return this;
+    }
+
+    /**
+     * チャットが聞き取り状態が変わった時に呼ばれるリスナーの設定
+     * @param listener
+     * @return
+     */
+    public QLChat setQlChatHearingChangedListener(QLChatHearingChangedListener listener){
+        qlChatHearingChangedListener = listener;
         return this;
     }
 
@@ -269,6 +305,34 @@ public class QLChat extends QLAction<String> {
                         }
                     });
                 }
+
+                if (qlChatHeardListener != null){
+                    chat.addOnHeardListener(new Chat.OnHeardListener() {
+                        @Override
+                        public void onHeard(Phrase heardPhrase) {
+                            qlChatHeardListener.onHeard(heardPhrase.getText());
+                        }
+                    });
+                }
+
+                if (qlChatSayingChangedListener != null){
+                    chat.addOnSayingChangedListener(new Chat.OnSayingChangedListener() {
+                        @Override
+                        public void onSayingChanged(Phrase sayingPhrase) {
+
+                        }
+                    });
+                }
+
+                if(qlChatHearingChangedListener != null){
+                    chat.addOnHearingChangedListener(new Chat.OnHearingChangedListener() {
+                        @Override
+                        public void onHearingChanged(Boolean hearing) {
+                            qlChatHearingChangedListener.onHearingChanged(hearing);
+                        }
+                    });
+                }
+
 
                 return chat.async().run();
             }
