@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -26,9 +26,6 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLListen;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLLocalize;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLLookAt;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLSay;
-import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.dialogflow.OnDetectedIntentListener;
-import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.dialogflow.QLDialogflowChatbot;
-import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.dialogflow.QLDialogflowChatbotBuilder;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLBookmarkReachedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLEngagedHumanChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundChangedListener;
@@ -59,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_test_001).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 QLDialogflowChatbotBuilder qlDialogflowChatbotBuilder = new QLDialogflowChatbotBuilder(getApplicationContext(), R.raw.credentials, "test-session-id");
 
                 qlDialogflowChatbotBuilder.setOnDetectedIntentListener(new OnDetectedIntentListener() {

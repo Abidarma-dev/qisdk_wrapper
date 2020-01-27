@@ -1,4 +1,4 @@
-package jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.dialogflow;
+package com.softbankrobotics.qitest;
 
 import android.os.Bundle;
 import android.util.Log;

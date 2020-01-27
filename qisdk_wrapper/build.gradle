@@ -27,12 +27,6 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
 	implementation 'com.aldebaran:qisdk:1.4.9'
 	implementation 'com.aldebaran:qisdk-design:1.4.9'
-    implementation ('com.google.cloud:google-cloud-dialogflow:0.92.0-alpha') {
-        exclude group: 'io.grpc', module: 'grpc-core'
-        exclude group: 'io.grpc', module: 'grpc-okhttp'
-    }
-    implementation 'io.grpc:grpc-core:1.22.1'
-    implementation "io.grpc:grpc-okhttp:1.22.1"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
@@ -46,9 +40,9 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository url: "file://${repo.absolutePath}"
-            pom.version = '1.0.18'             // version
-            pom.groupId = 'jp.pepper-atelier-akihabara'    // グループ名
-            pom.artifactId = 'qisdk_wrapper' // ライブラリ名
+            pom.version = '1.0.19'                          // version
+            pom.groupId = 'jp.pepper-atelier-akihabara'     // グループ名
+            pom.artifactId = 'qisdk_wrapper'                // ライブラリ名
         }
     }
 }
