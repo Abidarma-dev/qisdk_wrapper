@@ -319,7 +319,7 @@ public class QLChat extends QLAction<String> {
                     chat.addOnSayingChangedListener(new Chat.OnSayingChangedListener() {
                         @Override
                         public void onSayingChanged(Phrase sayingPhrase) {
-
+                            qlChatSayingChangedListener.onSayingChanged(sayingPhrase.getText());
                         }
                     });
                 }
