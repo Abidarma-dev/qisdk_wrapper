@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                QLDialogflowChatbotBuilder qlDialogflowChatbotBuilder = new QLDialogflowChatbotBuilder(getApplicationContext(), R.raw.credentials, "test-session-id");
+                QLDialogflowChatbotBuilder qlDialogflowChatbotBuilder = new QLDialogflowChatbotBuilder(getApplicationContext(), 0 /*R.raw.credentials*/, "test-session-id");
 
                 qlDialogflowChatbotBuilder.setOnDetectedIntentListener(new OnDetectedIntentListener() {
                     @Override
