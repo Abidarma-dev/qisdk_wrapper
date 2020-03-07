@@ -12,6 +12,7 @@ import com.aldebaran.qi.sdk.object.conversation.BaseChatbot;
 import com.aldebaran.qi.sdk.object.conversation.BodyLanguageOption;
 import com.aldebaran.qi.sdk.object.conversation.Bookmark;
 import com.aldebaran.qi.sdk.object.conversation.Chat;
+import com.aldebaran.qi.sdk.object.conversation.Chatbot;
 import com.aldebaran.qi.sdk.object.conversation.Phrase;
 import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
@@ -47,7 +48,7 @@ public class QLChat extends QLAction<String> {
     private QiChatbot qiChatbot;
 
     private volatile ArrayList<QLChatbotBuilder> chatbotBuilders = new ArrayList<>();
-    private volatile ArrayList<BaseChatbot> chatbotList = new ArrayList<>();
+    private volatile ArrayList<Chatbot> chatbotList = new ArrayList<>();
 
     public QLChat(QLPepper qlPepper) {
         super(qlPepper);
@@ -264,7 +265,7 @@ public class QLChat extends QLAction<String> {
                     }
                 });
 
-                chatbotList.add(0, (BaseChatbot)qiChatbot);
+                chatbotList.add(0, qiChatbot);
             }
         });
     }
@@ -335,11 +336,6 @@ public class QLChat extends QLAction<String> {
 
 
                 return chat.async().run();
-            }
-        }).thenConsume(new Consumer<Future<Void>>() {
-            @Override
-            public void consume(Future<Void> future) throws Throwable {
-                // nop
             }
         });
     }
