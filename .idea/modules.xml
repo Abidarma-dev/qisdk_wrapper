@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Github-qisdk_wrapper.iml" filepath="$PROJECT_DIR$/Github-qisdk_wrapper.iml" />
-      <module fileurl="file://$PROJECT_DIR$/qisdk_wrapper/qisdk_wrapper-qisdk_wrapper.iml" filepath="$PROJECT_DIR$/qisdk_wrapper/qisdk_wrapper-qisdk_wrapper.iml" />
-      <module fileurl="file://$PROJECT_DIR$/qitest/qitest.iml" filepath="$PROJECT_DIR$/qitest/qitest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Github-qisdk_wrapper.iml" filepath="$PROJECT_DIR$/Github-qisdk_wrapper.iml" group="qisdk_wrapper" />
+      <module fileurl="file://$PROJECT_DIR$/qisdk_wrapper/qisdk_wrapper-qisdk_wrapper.iml" filepath="$PROJECT_DIR$/qisdk_wrapper/qisdk_wrapper-qisdk_wrapper.iml" group="qisdk_wrapper/qisdk_wrapper" />
+      <module fileurl="file://$PROJECT_DIR$/qitest/qitest.iml" filepath="$PROJECT_DIR$/qitest/qitest.iml" group="qisdk_wrapper/qitest" />
     </modules>
   </component>
 </project>

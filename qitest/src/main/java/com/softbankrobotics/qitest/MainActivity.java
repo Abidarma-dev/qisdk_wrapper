@@ -28,6 +28,7 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLLookAt;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLSay;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLBookmarkReachedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLEngagedHumanChangedListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundCallback;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLTouchedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLFrame;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +59,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                QLDialogflowChatbotBuilder qlDialogflowChatbotBuilder = new QLDialogflowChatbotBuilder(getApplicationContext(), R.raw.credentials, "test-session-id");
+                /*
+                QLDialogflowChatbotBuilder qlDialogflowChatbotBuilder = new QLDialogflowChatbotBuilder(getApplicationContext(), 0, "test-session-id");
 
                 qlDialogflowChatbotBuilder.setOnDetectedIntentListener(new OnDetectedIntentListener() {
                     @Override
@@ -68,6 +71,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 QLPepper.getInstance().buildChat().addChatbotBuilder(qlDialogflowChatbotBuilder).run();
+
+                 */
+
+                QLPepper.getInstance().getQLHumansAround(new QLHumansAroundCallback() {
+                    @Override
+                    public void onHumansAround(List<QLHuman> humanList) {
+                        Toast.makeText(getApplicationContext(), "humanList size: " + humanList.size(), Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
         findViewById(R.id.btn_test_002).setOnClickListener(new View.OnClickListener() {

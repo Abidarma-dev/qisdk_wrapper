@@ -1,5 +1,7 @@
 package jp.pepper_atelier_akihabara.qisdk_wrapper.manager;
 
+import com.aldebaran.qi.Consumer;
+import com.aldebaran.qi.Future;
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.object.human.Human;
 import com.aldebaran.qi.sdk.object.humanawareness.HumanAwareness;
@@ -10,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import jp.pepper_atelier_akihabara.qisdk_wrapper.QLPepper;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLEngagedHumanChangedListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundCallback;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLHuman;
 
@@ -99,6 +102,29 @@ public class QLHumanManager {
                 qiContext.getHumanAwareness().async().addOnEngagedHumanChangedListener(onEngagedHumanChangedListener);
             }
         }
+    }
+
+    public synchronized void getQLHumansAround(final QLHumansAroundCallback callback) {
+        this.qiContext.getHumanAwareness().async().getHumansAround().thenConsume(new Consumer<Future<List<Human>>>() {
+            @Override
+            public void consume(Future<List<Human>> listFuture) throws Throwable {
+                final List<QLHuman> qlHumanList = new ArrayList<>();
+                if(listFuture.isSuccess()) {
+                    for (Human human : listFuture.getValue()) {
+                        QLHuman qlHuman = new QLHuman(human);
+                        qlHuman.updateSync();
+                        qlHumanList.add(qlHuman);
+                    }
+                }
+
+                QLPepper.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onHumansAround(qlHumanList);
+                    }
+                });
+            }
+        });
     }
 
     public synchronized void addQLHumansAroundChangedListener(QLHumansAroundChangedListener listener) {

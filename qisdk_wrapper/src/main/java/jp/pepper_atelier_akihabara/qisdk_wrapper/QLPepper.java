@@ -24,6 +24,7 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLSay;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLTakePicture;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.action.QLTrajectory;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLEngagedHumanChangedListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundCallback;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLHumansAroundChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLTouchedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.manager.QLActionManager;
@@ -311,6 +312,14 @@ public class QLPepper {
      */
     public void cancelAll(){
         QLActionManager.getInstance().cancelAction();
+    }
+
+    /**
+     * 周辺の人の情報を取得
+     * @param callback
+     */
+    public void getQLHumansAround(QLHumansAroundCallback callback){
+        QLHumanManager.getInstance().getQLHumansAround(callback);
     }
 
     /**
