@@ -29,6 +29,7 @@ import jp.pepper_atelier_akihabara.qisdk_wrapper.chatbot.QLChatbotBuilder;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLBookmarkReachedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatHeardListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatHearingChangedListener;
+import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatListeningChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatSayingChangedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.listener.QLChatStartedListener;
 import jp.pepper_atelier_akihabara.qisdk_wrapper.value.QLLanguage;
@@ -43,12 +44,14 @@ public class QLChat extends QLAction<String> {
     private QLChatSayingChangedListener qlChatSayingChangedListener;
     private QLChatHeardListener qlChatHeardListener;
     private QLChatHearingChangedListener qlChatHearingChangedListener;
+    private QLChatListeningChangedListener qlChatListeningChangedListener;
     private QLLanguage.Language language;
     private Boolean bodyLanguage = true;
     private QiChatbot qiChatbot;
 
     private volatile ArrayList<QLChatbotBuilder> chatbotBuilders = new ArrayList<>();
     private volatile ArrayList<Chatbot> chatbotList = new ArrayList<>();
+
 
     public QLChat(QLPepper qlPepper) {
         super(qlPepper);
@@ -157,6 +160,16 @@ public class QLChat extends QLAction<String> {
      */
     public QLChat setQlChatHearingChangedListener(QLChatHearingChangedListener listener){
         qlChatHearingChangedListener = listener;
+        return this;
+    }
+
+    /**
+     * チャットが聞き取り状態が変わった時に呼ばれるリスナーの設定
+     * @param listener
+     * @return
+     */
+    public QLChat setQlChatListeningChangedListener(QLChatListeningChangedListener listener){
+        qlChatListeningChangedListener = listener;
         return this;
     }
 
@@ -330,6 +343,15 @@ public class QLChat extends QLAction<String> {
                         @Override
                         public void onHearingChanged(Boolean hearing) {
                             qlChatHearingChangedListener.onHearingChanged(hearing);
+                        }
+                    });
+                }
+
+                if(qlChatListeningChangedListener != null){
+                    chat.addOnListeningChangedListener(new Chat.OnListeningChangedListener() {
+                        @Override
+                        public void onListeningChanged(Boolean listening) {
+                            qlChatListeningChangedListener.onListeningChanged(listening);
                         }
                     });
                 }
