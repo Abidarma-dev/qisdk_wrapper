@@ -315,7 +315,12 @@ public class QLChat extends QLAction<String> {
                     chat.addOnStartedListener(new Chat.OnStartedListener() {
                         @Override
                         public void onStarted() {
-                            qlChatStartedListener.onStarted();
+                            qlPepper.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    qlChatStartedListener.onStarted();
+                                }
+                            });
                         }
                     });
                 }
@@ -323,8 +328,13 @@ public class QLChat extends QLAction<String> {
                 if (qlChatHeardListener != null){
                     chat.addOnHeardListener(new Chat.OnHeardListener() {
                         @Override
-                        public void onHeard(Phrase heardPhrase) {
-                            qlChatHeardListener.onHeard(heardPhrase.getText());
+                        public void onHeard(final Phrase heardPhrase) {
+                            qlPepper.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    qlChatHeardListener.onHeard(heardPhrase.getText());
+                                }
+                            });
                         }
                     });
                 }
@@ -332,8 +342,13 @@ public class QLChat extends QLAction<String> {
                 if (qlChatSayingChangedListener != null){
                     chat.addOnSayingChangedListener(new Chat.OnSayingChangedListener() {
                         @Override
-                        public void onSayingChanged(Phrase sayingPhrase) {
-                            qlChatSayingChangedListener.onSayingChanged(sayingPhrase.getText());
+                        public void onSayingChanged(final Phrase sayingPhrase) {
+                            qlPepper.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    qlChatSayingChangedListener.onSayingChanged(sayingPhrase.getText());
+                                }
+                            });
                         }
                     });
                 }
@@ -341,8 +356,13 @@ public class QLChat extends QLAction<String> {
                 if(qlChatHearingChangedListener != null){
                     chat.addOnHearingChangedListener(new Chat.OnHearingChangedListener() {
                         @Override
-                        public void onHearingChanged(Boolean hearing) {
-                            qlChatHearingChangedListener.onHearingChanged(hearing);
+                        public void onHearingChanged(final Boolean hearing) {
+                            qlPepper.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    qlChatHearingChangedListener.onHearingChanged(hearing);
+                                }
+                            });
                         }
                     });
                 }
@@ -350,8 +370,13 @@ public class QLChat extends QLAction<String> {
                 if(qlChatListeningChangedListener != null){
                     chat.addOnListeningChangedListener(new Chat.OnListeningChangedListener() {
                         @Override
-                        public void onListeningChanged(Boolean listening) {
-                            qlChatListeningChangedListener.onListeningChanged(listening);
+                        public void onListeningChanged(final Boolean listening) {
+                            qlPepper.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    qlChatListeningChangedListener.onListeningChanged(listening);
+                                }
+                            });
                         }
                     });
                 }
